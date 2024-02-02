@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const util = require("util");
 const fs = require("fs");
+const bcrypt = require('bcryptjs');
 
 const conn = mysql.createPool({
     host: '167.114.113.203',
@@ -26,7 +27,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 fs.readdir('API/', (err, files) => {
     files.forEach((file) => {
-        require('./API/' + file).initFunction(app, query);
+        require('./API/' + file).initFunction(app, query, bcrypt);
     }) 
 })
 

@@ -1,7 +1,8 @@
 const mysql = require("mysql");
-const helper = require("../helper")
+const helper = require("../helper");
+const bcrypt = require('bcryptjs');
 module.exports = {
-    initFunction: (app, query) => {
+    initFunction: (app, query, bcrypt) => {
         app.get('/Users', async (req, res, next) => {
             let result;
             if (req.query.UserId) {
@@ -34,8 +35,9 @@ module.exports = {
 
 
         app.post('/Users', async (req, res, next) => {
-            let checkData = false, result, firstName, lastName, mail, pwd;
-
+            let checkData = false;
+            let result, lastName, mail, pwd, hash;
+            let firstName;
             if (req.body.Firstname != null) {
                 console.log(req.body.Firstname.toLowerCase());
                 firstName = req.body.Firstname.toLowerCase();
@@ -74,7 +76,8 @@ module.exports = {
                 //Vérification si le mdp est valide à faire
                 pwd = req.body.Password;
                 if (pwd.length >= 8 && /[0-9]/.test(pwd) && /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /[!@#$%^&*]/.test(pwd)) {
-                    // Le mot de passe est valide
+                    const salt = bcrypt.genSaltSync(10);
+                    hash = bcrypt.hashSync(pwd, salt);
                 } else {
                     checkData = true;
                     result = "Le mot de passe doit contenir au moins 8 caractères, un chiffre, une majuscule et un caractère spécial";
@@ -97,7 +100,8 @@ module.exports = {
 
             if (checkData == false) {
                 //toute les données ont été envoyer alors ont peux créer le user.
-                let result = await query(`ÌNSERT INTO Users VALUES(0, ${mysql.escape(Firstname)}, ${mysql.escape(Lastname)}, ${mysql.escape(mail)} ${mysql.escape(password)}, 1);`);
+                let result = await query(`INSERT INTO Users VALUES(0, ${mysql.escape(firstName)}, ${mysql.escape(lastName)}, ${mysql.escape(mail)}, ${mysql.escape(hash)}, 1);`);
+                res.json(result);
             }
             console.log(result)
                 res.send(result);
