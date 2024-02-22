@@ -1,6 +1,8 @@
 const mysql = require("mysql");
 const helper = require("../helper");
 
+
+
 module.exports = {
     initFunction : (app, query) => {
         app.get('/Products', async (req, res, next) => {
