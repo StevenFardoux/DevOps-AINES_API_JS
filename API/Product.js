@@ -10,7 +10,9 @@ module.exports = {
                 let result = await query(`SELECT Name, Price, Description, Stock, CreateAt FROM Products`);
             }
             console.log(result)
-                res.send(result);
+          
+            res.send(result);
+
         });
 
         app.post('/Products', async (req, res, next) => {
@@ -26,7 +28,7 @@ module.exports = {
                             checkData = true;
                             result = "Aucun nom (Name) passé en paramètre"
                         }
-            
+
                         if (req.body.Price != null) {
                             console.log(req.body.Price.toLowerCase());
                             price = req.body.Price.toLowerCase();
@@ -34,7 +36,7 @@ module.exports = {
                             checkData = true;
                             result = "Aucun prix (Price) passé en paramètre"
                         }
-            
+
                         if (req.body.Description != null) {
                             console.log(req.body.Description.toLowerCase());
                             description = req.body.Description.toLowerCase();
@@ -42,7 +44,7 @@ module.exports = {
                             checkData = true;
                             result = "Aucune description passé en paramètre"
                         }
-            
+
                         if (req.body.Stock != null) {
                             console.log(req.body.Stock.toLowerCase());
                             stock = req.body.Stock.toLowerCase();
@@ -50,7 +52,7 @@ module.exports = {
                             checkData = true;
                             result = "Aucun stock passé en paramètre"
                         }
-            
+
                         if (req.body.CreateAt != null) {
                             console.log(req.body.CreateAt);
                             createAt = req.body.CreateAt;
@@ -58,8 +60,7 @@ module.exports = {
                             checkData = true;
                             result = "Aucune Date d'ajoute (CreateAt) passé en paramètre"
                         }
-            
-            
+
                         if (checkData == false) {
                             result = await query(`INSERT INTO Products VALUES(0 ,${mysql.escape(name)}, ${mysql.escape(price)}, ${mysql.escape(description)}, ${mysql.escape(stock)}, ${mysql.escape(createAt)});`);
                         }

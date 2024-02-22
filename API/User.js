@@ -104,7 +104,8 @@ module.exports = {
                 res.json(result);
             }
             console.log(result)
-                res.send(result);
+            res.send(result);
+
         });
 
 
