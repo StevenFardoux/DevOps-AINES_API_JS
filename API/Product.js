@@ -4,10 +4,59 @@ const helper = require("../helper");
 module.exports = {
     initFunction : (app, query) => {
         app.get('/Products', async (req, res, next) => {
+            let trie;
             if (req.query.ProductId) {
                 let result = await query(`SELECT Name, Price, Description, Stock, CreateAt FROM Products WHERE ProductId = ${mysql.escape(req.query.ProductId)}`);
             } else {
-                let result = await query(`SELECT Name, Price, Description, Stock, CreateAt FROM Products`);
+                let result = await query(`SELECT P.Name, Price, P.Description, Stock, CreateAt 
+                FROM Products P 
+                INNER JOIN Categories C ON P.ProductId = C.CategoryId 
+                INNER JOIN CategoriesRoom CR ON CR.CategoryId = C.CategoryId 
+                INNER JOIN Rooms R ON CR.RoomId = R.RoomId `);
+
+                if (req.query.Name) {
+                    if (trie != null) {
+                        trie = ` WHERE P.Name = ${mysql.escape(req.query.Name)}`
+                    } else {
+                        trie = ` AND P.Name = ${mysql.escape(req.query.Name)}`
+                    }
+                }
+
+                if (req.query.PriceMax) {
+                    let priceMin
+                    if (req.query.PriceMin) {
+                        let priceMin = 
+                    }
+                    if (trie != null) {
+                        trie = ` WHERE P.Price BETWEEN ${mysql.escape(req.query.)}`
+                    } else {
+                        trie = ` AND P.Name = ${mysql.escape(req.query.)}`
+                    }
+                }
+
+                if (req.query.Name) {
+                    if (trie != null) {
+                        trie = ` WHERE P.Name = ${mysql.escape(req.query.)}`
+                    } else {
+                        trie = ` AND P.Name = ${mysql.escape(req.query.)}`
+                    }
+                }
+
+                if (req.query.Name) {
+                    if (trie != null) {
+                        trie = ` WHERE P.Name = ${mysql.escape(req.query.)}`
+                    } else {
+                        trie = ` AND P.Name = ${mysql.escape(req.query.)}`
+                    }
+                }
+
+                if (req.query.Name) {
+                    if (trie != null) {
+                        trie = ` WHERE P.Name = ${mysql.escape(req.query.)}`
+                    } else {
+                        trie = ` AND P.Name = ${mysql.escape(req.query.)}`
+                    }
+                }
             }
             console.log(result)
                 res.send(result);

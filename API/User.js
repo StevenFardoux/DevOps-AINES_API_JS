@@ -7,7 +7,10 @@ module.exports = {
             let result;
             if (req.query.UserId) {
                 //getUsersID
-                result = await query(`SELECT Firstname, Lastname, Mail, Password, RoleId FROM Users WHERE UserId = ${mysql.escape(req.query.UserId)}`)
+                result = await query(`SELECT Firstname, Lastname, Mail, Password, RoleId FROM Users WHERE UserId = ${mysql.escape(req.query.UserId)}`);
+                if (result.length == 0) {
+                    result = {'code error': "204", error: "User not found"};
+                }
             }
             else {
                 //GetUser
@@ -18,19 +21,22 @@ module.exports = {
                     //Vérification si user existe
                     if (tabUserInfo[0].UserId != 0) {
                         if (tabUserInfo[0].RoleId == 2) {
-                            result = await query(`SELECT Firstname, Lastname, Mail, Password, RoleId FROM Users`)
+                            result = await query(`SELECT Firstname, Lastname, Mail, Password, RoleId FROM Users`);
+                            if (result.length = 0) {
+                                result = {'code error': "204", error: "Users not found"};
+                            }
                         } else {
-                            result = "Action non autorisé"
+                            result = {'code error': "403", error: "Unauthorized action"};
                         }
                     } else {
-                        result = "Aucun user trouvé"
+                        result = {'code error': "204", error: "Users not found"};
                     }
                 } else {
-                    result = "Token necessaire pour cette action"
+                    result = {'code error': "403", error: "Token required for this action"};
                 }
             }
             console.log(result)
-            res.send(result);
+            res.json(result)
         });
 
 
@@ -43,8 +49,7 @@ module.exports = {
                 firstName = req.body.Firstname.toLowerCase();
             } else {
                 checkData = true;
-                result = "Aucun prénom (Firstname) passé en paramètre"
-
+                result = {'code error': "400", error: "No first name (Firstname) passed as parameter"}
             }
 
             if (req.body.Lastname != null) {
@@ -52,8 +57,7 @@ module.exports = {
                 lastName = req.body.Lastname.toLowerCase();
             } else {
                 checkData = true;
-                result = "Aucun nom (Lastname) passé en paramètre"
-
+                result = {'code error': "400", error: "No name (Lastname) passed as parameter"}
             }
 
             if (req.body.Mail != null) {
@@ -62,14 +66,11 @@ module.exports = {
                     mail = req.body.Mail.toLowerCase();
                 } else {
                     checkData = true;
-                    result = "Adresse mail invalide"
-
-
+                    result = {'code error': "400", error: "Invalid e-mail address"}
                 }
             } else {
                 checkData = true;
-                result = "Aucun adresse mail (Mail) passé en paramètre"
-
+                result = {'code error': "400", error: "No mail address (Mail) passed as parameter"}
             }
 
             if (req.body.Password != null) {
@@ -80,13 +81,11 @@ module.exports = {
                     hash = bcrypt.hashSync(pwd, salt);
                 } else {
                     checkData = true;
-                    result = "Le mot de passe doit contenir au moins 8 caractères, un chiffre, une majuscule et un caractère spécial";
-
+                    result = {'code error': "400", error: "The password must contain at least 8 characters, a number, a capital letter and a special character."}
                 }
             } else {
                 checkData = true;
-                result = "Aucun mot de passe (Password) passé en paramètre"
-
+                result = {'code error': "400", error: "No password passed as parameter"}
             }
 
             if (req.body.RoleId != null) {
@@ -94,17 +93,18 @@ module.exports = {
                 roleId = req.body.RoleId.toLowerCase();
             } else {
                 checkData = true;
-                result = "Aucun RoleId passé en paramètre"
-
+                result = {'code error': "400", error: "No RoleId passed as parameter"};
             }
 
             if (checkData == false) {
                 //toute les données ont été envoyer alors ont peux créer le user.
                 let result = await query(`INSERT INTO Users VALUES(0, ${mysql.escape(firstName)}, ${mysql.escape(lastName)}, ${mysql.escape(mail)}, ${mysql.escape(hash)}, 1);`);
-                res.json(result);
+                if (!(result)) {
+                    result = {'code error': "403", error: "refused method"};
+                }
             }
             console.log(result)
-                res.send(result);
+            res.json(result);
         });
 
 
@@ -123,15 +123,15 @@ module.exports = {
                         if (req.body.id != null) {
                             idUser = mysql.escape(req.body.id)
                         } else {
-                            result = "Id manquant";
+                            result = {'code error': "400", error: "Missing Id"};
                         }
                     }
                 } else {
-                    result = "Aucun user trouvé";
+                    result = {'code error': "204", error: "Users not found"};
                 }
 
             } else {
-                result = "Token necessaire pour cette action";
+                result = {'code error': "403", error: "Token required for this action"};
             }
             if (req.body.Mail != null) {
                 //Vérification que c'est bien un mail avec retour false si ce ne l'est pas + message.4
@@ -139,7 +139,7 @@ module.exports = {
                     mail = req.body.Mail.toLowerCase();
                 } else {
                     checkData = true;
-                    result = "Adresse mail invalide"
+                    result = {'code error': "400", error: "Invalid e-mail address"};
                 }
             }
 
@@ -150,7 +150,7 @@ module.exports = {
                     // Le mot de passe est valide
                 } else {
                     checkData = true;
-                    result = "Le mot de passe doit contenir au moins 8 caractères, un chiffre, une majuscule et un caractère spécial";
+                    result = {'code error': "400", error: "The password must contain at least 8 characters, a number, a capital letter and a special character."};
                 }
             }
             console.log(checkData)
@@ -170,7 +170,7 @@ module.exports = {
                 result = await query(quer)
             }
             console.log(result)
-            res.send(result);
+            res.json(result);
         });
 
 
@@ -188,24 +188,27 @@ module.exports = {
                         if (req.body.id != null) {
                             idUser = mysql.escape(req.body.id)
                         } else {
-                            result = "Id manquant";
+                            result = {'code error': "204", error: "Users not found"};
                         }
                     }
                 } else {
-                    result = "Aucun user trouvé";
+                    result = {'code error': "204", error: "Users not found"};
                 }
 
             } else {
-                result = "Token necessaire pour cette action";
+                result = {'code error': "403", error: "Token required for this action"};
             }
 
             if (idUser != null) {
                 result = await query(`DELETE FROM Users WHERE UserId = ${mysql.escape(idUser)};`);
+                if (result.length = 0) {
+                    result = {'code error': "403", error: "refused method"};
+                }
             } else {
-                result = "Aucun Id passé en paramètre"
+                result = {'code error': "204", error: "No Id passed as parameter"};
             }
             console.log(result)
-            res.send(result);
+            res.json(result);
         });
     }
 }
