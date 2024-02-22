@@ -10,7 +10,9 @@ module.exports = {
                 let result = await query(`SELECT Name, Price, Description, Stock, CreateAt FROM Products`);
             }
             console.log(result)
+          
             res.send(result);
+
         });
 
         app.post('/Products', async (req, res, next) => {
@@ -58,7 +60,6 @@ module.exports = {
                             checkData = true;
                             result = "Aucune Date d'ajoute (CreateAt) passé en paramètre"
                         }
-
 
                         if (checkData == false) {
                             result = await query(`INSERT INTO Products VALUES(0 ,${mysql.escape(name)}, ${mysql.escape(price)}, ${mysql.escape(description)}, ${mysql.escape(stock)}, ${mysql.escape(createAt)});`);
