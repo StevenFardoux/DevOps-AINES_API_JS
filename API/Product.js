@@ -65,6 +65,7 @@ module.exports = {
             }
             console.log(result)
             res.json(result);
+
         });
 
         app.post('/Products', async (req, res, next) => {
@@ -80,7 +81,7 @@ module.exports = {
                             checkData = true;
                             result = {'code error': "400", error: "No first name (Mame) passed as parameter"}
                         }
-            
+
                         if (req.body.Price != null) {
                             console.log(req.body.Price.toLowerCase());
                             price = req.body.Price.toLowerCase();
@@ -88,7 +89,7 @@ module.exports = {
                             checkData = true;
                             result = {'code error': "400", error: "No price (Price) passed as parameter"}
                         }
-            
+
                         if (req.body.Description != null) {
                             console.log(req.body.Description.toLowerCase());
                             description = req.body.Description.toLowerCase();
@@ -96,7 +97,7 @@ module.exports = {
                             checkData = true;
                             result = {'code error': "400", error: "No first description (Description) passed as parameter"}
                         }
-        
+
                         if (req.body.Stock != null) {
                             console.log(req.body.Stock.toLowerCase());
                             stock = req.body.Stock.toLowerCase();
@@ -104,7 +105,7 @@ module.exports = {
                             checkData = true;
                             result = {'code error': "400", error: "No stock (Stock) passed as parameter"}
                         }
-            
+
                         if (req.body.CreateAt != null) {
                             console.log(req.body.CreateAt);
                             createAt = req.body.CreateAt;
@@ -112,8 +113,7 @@ module.exports = {
                             checkData = true;
                             result = {'code error': "400", error: "No Date added (CreateAt) passed as parameter"}
                         }
-            
-            
+
                         if (checkData == false) {
                             result = await query(`INSERT INTO Products VALUES(0 ,${mysql.escape(name)}, ${mysql.escape(price)}, ${mysql.escape(description)}, ${mysql.escape(stock)}, ${mysql.escape(createAt)});`);
                             if (result.length == 0) {
