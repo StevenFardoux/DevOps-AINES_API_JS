@@ -22,7 +22,7 @@ module.exports = {
                     if (tabUserInfo[0].UserId != 0) {
                         if (tabUserInfo[0].RoleId == 2) {
                             result = await query(`SELECT Firstname, Lastname, Mail, Password, RoleId FROM Users`);
-                            if (result.length = 0) {
+                            if (result.length == 0) {
                                 result = {'code error': "204", error: "Users not found"};
                             }
                         } else {
@@ -99,7 +99,7 @@ module.exports = {
             if (checkData == false) {
                 //toute les données ont été envoyer alors ont peux créer le user.
                 let result = await query(`INSERT INTO Users VALUES(0, ${mysql.escape(firstName)}, ${mysql.escape(lastName)}, ${mysql.escape(mail)}, ${mysql.escape(hash)}, 1);`);
-                if (!(result)) {
+                if (result == 0) {
                     result = {'code error': "403", error: "refused method"};
                 }
             }
@@ -168,6 +168,9 @@ module.exports = {
                 quer += ` WHERE UserId = ${mysql.escape(req.body.idUser)};`;
                 console.log(quer);
                 result = await query(quer)
+                if (result.length == 0) {
+                    result = {'code error': "403", error: "refused method"};
+                }
             }
             console.log(result)
             res.json(result);
@@ -201,7 +204,7 @@ module.exports = {
 
             if (idUser != null) {
                 result = await query(`DELETE FROM Users WHERE UserId = ${mysql.escape(idUser)};`);
-                if (result.length = 0) {
+                if (result.length == 0) {
                     result = {'code error': "403", error: "refused method"};
                 }
             } else {

@@ -8,12 +8,14 @@ module.exports = {
             let result;
             if (req.query.token != null) {
                 result = await query(`SELECT UserId FROM Session WHERE token = ${mysql.escape(req.query.token)}`)
-                res.json(result);
+                if (result.length == 0) {
+                    result = {'code error': "403", error: "refused method"};
+                }
             } else {
-                result = "Aucun token passé en paramètre";
-                res.send(result);
+                result = {'code error': "403", error: "Token required for this action"};
             }
-            console.log(result)
+            console.log(result);
+            res.json(result);
         });
 
         app.post('/Session', async (req, res, next) => {
@@ -23,16 +25,14 @@ module.exports = {
                 mail = req.body.Mail;
             } else {
                 checkData = true;
-                result = "Adresse mail manquante";
-                res.send(result);
+                result = {'code error': "400", error: "No first name (Firstname) passed as parameter"}
             }
 
             if (req.body.Password != null) {
                 pwd = req.body.Password;
             } else {
                 checkData = true;
-                result = "Mot de passe manquant";
-                res.send(result);
+                result = {'code error': "400", error: "No password passed as parameter"}
             }
 
 
@@ -41,8 +41,7 @@ module.exports = {
                 user = await query(`SELECT UserId, Password FROM Users WHERE Mail = ${mysql.escape(mail)};`);
                 console.log(user);
                 if (user.length == 0) {
-                    result = "Aucun utilisateur trouvé";
-                    res.send(result);
+                    result = {'code error': "204", error: "Users not found"};
                 } else {
                     //Vérification mdp correct
                     if (bcrypt.compareSync(pwd, user[0].Password)) {
@@ -55,29 +54,35 @@ module.exports = {
                         }
                         console.log('token :' + token);
                         result = await query(`INSERT INTO Session VALUES(0, ${mysql.escape(token)}, ${mysql.escape(user[0].UserId)})`);
-                        res.json(result);
+                        if (result.length == 0) {
+                            result = {'code error': "403", error: "refused method"};
+                        }
                     } else {
                         result = "Mot de passe incorrect";
-                        res.send(result);
+                        result = {'code error': "403", error: "Wrong password"};
                     }
                 }
             }
             console.log(result)
+            res.json(result);
         });
 
         app.delete('/Session', async (req, res, next) => {
             let UserId;
             if (req.body.UserId != null) {
-                let UserId = req.body.UserId;
+                UserId = req.body.UserId;
             } else {
                 result = "UserId manquant";
-                res.send(result);
+                result = {'code error': "400", error: "UserId missing"}
             }
 
             if (UserId != null) {
                 result = await query(`DELETE FROM Session WHERE UserId = ${mysql.escape(UserId)}`);
-                res.json(result);
+                if (result.length == 0) {
+                    result = {'code error': "403", error: "refused method"};
+                }
             }
+            res.json(result);
         });
     }
 }

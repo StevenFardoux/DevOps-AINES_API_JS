@@ -8,7 +8,7 @@ module.exports = {
             let result;
             if (req.query.RoleId) {
                 result = await query(`SELECT RoleId, Label FROM Roles WHERE RoleId = ${mysql.escape(req.query.RoleId)}`)
-                if (result.length = 0) {
+                if (result.length == 0) {
                     result = {'code error': "204", error: "Role not found"}
                 }
             } else {
@@ -16,7 +16,7 @@ module.exports = {
                     let tabUserInfo = await helper?.getInfoUser(req);
                     if (tabUserInfo[0].RoleId == 2) {
                         result = await query(`SELECT RoleId, Label FROM Roles`);
-                        if (result.length = 0) {
+                        if (result.length == 0) {
                             result = {'code error': "204", error: "Roles not found"}
                         }
                     } else {
@@ -43,7 +43,7 @@ module.exports = {
 
                 if (checkData == false) {
                     result = await query(`INSERT INTO Roles VALUES(0, ${mysql.escape(libelle)});`);
-                    if (result.length = 0) {
+                    if (result.length == 0) {
                         result = {'code error': "403", error: "refused method"};
                     }
                 }
@@ -65,7 +65,7 @@ module.exports = {
         
                     if (checkData == false) {
                         result = await query(`UPDATE Roles SET label = ${mysql.escape(libelle)};`);
-                        if (result.length = 0) {
+                        if (result.length == 0) {
                             result = {'code error': "403", error: "refused method"};
                         }
                     }
@@ -91,7 +91,7 @@ module.exports = {
 
                     if (checkData == false) {
                         result = await query(`DELETE FROM Roles WHERE RolesId = ${mysql.escape(roleId)};`);
-                        if (result.length = 0) {
+                        if (result.length == 0) {
                             result = {'code error': "403", error: "refused method"};
                         }
                     }
