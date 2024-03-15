@@ -73,16 +73,17 @@ module.exports = {
                 UserId = req.body.UserId;
             } else {
                 result = "UserId manquant";
-                result = {'code error': "400", error: "UserId missing"}
+                res.status(400).json({ succes: false, return: 'No user id (UserId) passed as parameter' });
             }
 
             if (UserId != null) {
                 result = await query(`DELETE FROM Session WHERE UserId = ${mysql.escape(UserId)}`);
                 if (result.length == 0) {
-                    result = {'code error': "403", error: "refused method"};
+                res.status(403).json({ succes: false, return: 'refused method' });
                 }
             }
-            res.json(result);
+                res.status(200).json({ succes: true, return: result });
+                res.json(result);
         });
     }
 }

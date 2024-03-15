@@ -9,7 +9,7 @@ module.exports = {
             if (req.query.RoleId) {
                 result = await query(`SELECT RoleId, Label FROM Roles WHERE RoleId = ${mysql.escape(req.query.RoleId)}`)
                 if (result.length == 0) {
-                    result = {'code error': "204", error: "Role not found"}
+                    res.status(204).json({ succes: false, return: 'Not found' });
                 }
             } else {
                 if (req.headers.token != null) {
@@ -17,16 +17,16 @@ module.exports = {
                     if (tabUserInfo[0].RoleId == 2) {
                         result = await query(`SELECT RoleId, Label FROM Roles`);
                         if (result.length == 0) {
-                            result = {'code error': "204", error: "Roles not found"}
+                            res.status(400).json({ succes: false, return: 'No role id (RoleId) passed as parameter' });
                         }
                     } else {
-                        result = {'code error': "403", error: "Unauthorized action"};
+                        res.status(403).json({ succes: false, return: 'Unauthorized actionrefused method' });
                     }
                 } else {
-                    result = {'code error': "403", error: "Token required for this action"};
+                    res.status(403).json({ succes: false, return: 'Token required for this action' });
                 }
             }
-            res.json(result);
+            res.status(200).json({ succes: true, return: result });
         });
 
         app.post('/Roles', async (req, res, next) => {
@@ -34,72 +34,72 @@ module.exports = {
 
             let tabUserInfo = await helper?.getInfoUser(req);
             if (tabUserInfo[0].RoleId == 2) {
-                if (req.body.libelle != null) {
-                    libelle = req.body.libelle;
+                if (req.body.Libelle != null) {
+                    libelle = req.body.Libelle;
                 } else {
-                    result = {'code error': "204", error: "Missing libelle"}
+                    res.status(400).json({ succes: false, return: 'No libelle (Libelle) passed as parameter' });
                     checkData = true;
                 }
 
                 if (checkData == false) {
                     result = await query(`INSERT INTO Roles VALUES(0, ${mysql.escape(libelle)});`);
                     if (result.length == 0) {
-                        result = {'code error': "403", error: "refused method"};
+                        res.status(403).json({ succes: false, return: 'refused method' });
                     }
                 }
             }
-            res.json(result);
+            res.status(200).json({ succes: true, return: result });
         });
 
         app.put('/Roles', async (req, res, next) => {
             let libelle, result, checkData = false;
             if (req.headers.token != null) {
                 let tabUserInfo = await helper?.getInfoUser(req);
-                if (tabUserInfo[0].RoleId == 2) { 
+                if (tabUserInfo[0].RoleId == 2) {
                     if (req.body.libelle != null) {
                         libelle = req.body.libelle;
                     } else {
-                        result = {'code error': "204", error: "Missing libelle"}
+                        res.status(400).json({ succes: false, return: 'No libelle (Libelle) passed as parameter' });
                         checkData = true;
                     }
-        
+
                     if (checkData == false) {
                         result = await query(`UPDATE Roles SET label = ${mysql.escape(libelle)};`);
                         if (result.length == 0) {
-                            result = {'code error': "403", error: "refused method"};
+                            res.status(403).json({ succes: false, return: 'refused method' });
                         }
                     }
                 }
             } else {
-                result = {'code error': "403", error: "Token required for this action"};
+                res.status(403).json({ succes: false, return: 'Token required for this action' });
             }
-            res.json(result)
+            res.status(200).json({ succes: true, return: result });
         });
 
         app.delete('/Roles', async (req, res, next) => {
             let roleId, checkData = false;
             if (req.headers.token != null) {
                 let tabUserInfo = await helper?.getInfoUser(req);
-                if (tabUserInfo[0].RoleId == 2) {  
+                if (tabUserInfo[0].RoleId == 2) {
                     if (req.body.roleId != null) {
                         roleId = req.body.RoleId;
                     } else {
                         result = "RoleId manquant";
-                        result = {'code error': "204", error: "Missing libelle"}
+                        res.status(204).json({ succes: false, return: 'No libelle (Libelle) passed as parameter' });
                         checkData = true;
                     }
 
                     if (checkData == false) {
                         result = await query(`DELETE FROM Roles WHERE RolesId = ${mysql.escape(roleId)};`);
                         if (result.length == 0) {
-                            result = {'code error': "403", error: "refused method"};
+                            res.status(403).json({ succes: false, return: 'refused method' });
                         }
                     }
                 }
             } else {
-                result = {'code error': "403", error: "Token required for this action"};
+                res.status(403).json({ succes: false, return: 'Token required for this action' });
             }
-            res.json(result);
+            res.status(200).json({ succes: true, return: result });
         });
     }
 }
