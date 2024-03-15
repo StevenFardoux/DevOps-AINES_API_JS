@@ -69,7 +69,7 @@ module.exports = {
         });
 
         app.post('/Products', async (req, res, next) => {
-            let checkData = false, result, tabUserInfo, name, price, description, rate, stock, createAt;
+            let checkData = true, result, tabUserInfo, name, price, description, rate, stock, createAt;
             if (req.headers.token != null) {
                 tabUserInfo = helper.getInfoUser(req);
                 if (tabUserInfo[0].UserID != 0) {
@@ -78,7 +78,7 @@ module.exports = {
                             console.log(req.body.Name.toLowerCase());
                             name = req.body.Name.toLowerCase();
                         } else {
-                            checkData = true;
+                            checkData = false;
                             res.status(400).json({ succes: false, return: 'No first name (Mame) passed as parameter' });
                         }
 
@@ -86,7 +86,7 @@ module.exports = {
                             console.log(req.body.Price.toLowerCase());
                             price = req.body.Price.toLowerCase();
                         } else {
-                            checkData = true;
+                            checkData = false;
                             res.status(400).json({ succes: false, return: 'No price (Price) passed as parameter' });
                         }
 
@@ -94,7 +94,7 @@ module.exports = {
                             console.log(req.body.Description.toLowerCase());
                             description = req.body.Description.toLowerCase();
                         } else {
-                            checkData = true;
+                            checkData = false;
                             res.status(400).json({ succes: false, return: 'No first description (Description) passed as parameter' });
                         }
 
@@ -106,7 +106,7 @@ module.exports = {
                             console.log(req.body.Stock.toLowerCase());
                             stock = req.body.Stock.toLowerCase();
                         } else {
-                            checkData = true;
+                            checkData = false;
                             res.status(400).json({ succes: false, return: 'No stock (Stock) passed as parameter' });
                         }
 
@@ -114,11 +114,11 @@ module.exports = {
                             console.log(req.body.CreateAt);
                             createAt = req.body.CreateAt;
                         } else {
-                            checkData = true;
+                            checkData = false;
                             res.status(400).json({ succes: false, return: 'No Date added (CreateAt) passed as parameter' });
                         }
 
-                        if (checkData == false) {
+                        if (checkData) {
                             result = await query(`INSERT INTO Products VALUES(0 ,${mysql.escape(name)}, ${mysql.escape(price)}, ${mysql.escape(description)}, ${(rate != null ? rate : 0)} , ${mysql.escape(stock)}, ${mysql.escape(createAt)});`);
                             if (result.length == 0) {
                                 res.status(403).json({ succes: false, return: 'refused method' });

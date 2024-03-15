@@ -41,7 +41,7 @@ module.exports = {
 
 
         app.post('/Users', async (req, res, next) => {
-            let checkData = false;
+            let checkData = true;
             let result, lastName, mail, pwd, hash;
             let firstName;
 
@@ -49,7 +49,7 @@ module.exports = {
                 console.log(req.body.Firstname.toLowerCase());
                 firstName = req.body.Firstname.toLowerCase();
             } else {
-                checkData = true;
+                checkData = false;
                 res.status(400).json({ succes: false, return: 'No first name (Firstname) passed as parameter' });
             }
 
@@ -57,7 +57,7 @@ module.exports = {
                 console.log(req.body.Lastname.toLowerCase());
                 lastName = req.body.Lastname.toLowerCase();
             } else {
-                checkData = true;
+                checkData = false;
                 res.status(400).json({ succes: false, return: 'No name (Lastname) passed as parameter' });
             }
 
@@ -66,11 +66,11 @@ module.exports = {
                 if (/^\S+@\S+\.\S+$/.test(req.body.Mail)) {
                     mail = req.body.Mail.toLowerCase();
                 } else {
-                    checkData = true;
+                    checkData = false;
                     res.status(400).json({ succes: false, return: 'Invalid e-mail address' });
                 }
             } else {
-                checkData = true;
+                checkData = false;
                 res.status(400).json({ succes: false, return: 'No mail address (Mail) passed as parameter' });
             }
 
@@ -81,11 +81,11 @@ module.exports = {
                     const salt = bcrypt.genSaltSync(10);
                     hash = bcrypt.hashSync(pwd, salt);
                 } else {
-                    checkData = true;
+                    checkData = false;
                     res.status(400).json({ succes: false, return: 'The password must contain at least 8 characters, a number, a capital letter and a special character.' });
                 }
             } else {
-                checkData = true;
+                checkData = false;
                 res.status(400).json({ succes: false, return: 'No password passed as parameter' });
             }
 
@@ -93,11 +93,11 @@ module.exports = {
                 console.log(req.body.RoleId.toLowerCase());
                 roleId = req.body.RoleId.toLowerCase();
             } else {
-                checkData = true;
+                checkData = false;
                 res.status(400).json({ succes: false, return: 'No role id (RoleId) passed as parameter' });
             }
 
-            if (checkData == false) {
+            if (checkData) {
                 //toute les données ont été envoyer alors ont peux créer le user.
                 let result = await query(`INSERT INTO Users VALUES(0, ${mysql.escape(firstName)}, ${mysql.escape(lastName)}, ${mysql.escape(mail)}, ${mysql.escape(hash)}, 1);`);
                 if (result == 0) {
@@ -111,7 +111,7 @@ module.exports = {
 
 
         app.put('/Users', async (req, res, next) => {
-            let mail, pwd, checkData = false, result, idUser;
+            let mail, pwd, checkData = true, result, idUser;
             console.log(req.body);
             if (req.headers.token != null) {
                 let tabUserInfo = helper.getInfoUser(req);
@@ -140,7 +140,7 @@ module.exports = {
                 if (/^\S+@\S+\.\S+$/.test(req.body.Mail)) {
                     mail = req.body.Mail.toLowerCase();
                 } else {
-                    checkData = true;
+                    checkData = false;
                     res.status(400).json({ succes: false, return: 'Invalid e-mail address' });
                 }
             }
@@ -151,12 +151,12 @@ module.exports = {
                 if (pwd.length >= 8 && /[0-9]/.test(pwd) && /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /[!@#$%^&*]/.test(pwd)) {
                     // Le mot de passe est valide
                 } else {
-                    checkData = true;
+                    checkData = false;
                     res.status(400).json({ succes: false, return: 'The password must contain at least 8 characters, a number, a capital letter and a special character.' });
                 }
             }
             console.log(checkData)
-            if (checkData == false) {
+            if (checkData) {
                 let quer = `UPDATE Users SET `
                 for (const key in req.body) {
                     if (Object.hasOwnProperty.call(req.body, key)) {

@@ -20,17 +20,17 @@ module.exports = {
 
 
             if (checkData) {
-                result = await query(`SELECT ProductId, MaterialId FROM ProductMaterials WHERE ProductId = ${mysql.escape(ProductId)} AND MaterialId = ${mysql.escape(MaterialId)};`);
+                result = await query(`SELECT P.ProductId, P.Name, P.Price, P.Description, P.Rate, P.Stock, P.CreateAt, M.MaterialId, M.Label FROM ProductMaterials PM INNER JOIN Products P ON PM.ProductId = P.ProductId INNER JOIN Materials M ON PM.MaterialId = M.MaterialId WHERE ProductId = ${mysql.escape(ProductId)} AND MaterialId = ${mysql.escape(MaterialId)};`);
                 if (result.length == 0) {
                     res.status(204).json({ succes: false, return: 'Not found' });
                 }
             } else if (ProductId != null) {
-                result = await query(`SELECT ProductId, MaterialId FROM ProductMaterials WHERE ProductId = ${mysql.escape(ProductId)};`);
+                result = await query(`SELECT P.ProductId, P.Name, P.Price, P.Description, P.Rate, P.Stock, P.CreateAt, M.MaterialId, M.Label FROM ProductMaterials PM INNER JOIN Products P ON PM.ProductId = P.ProductId INNER JOIN Materials M ON PM.MaterialId = M.MaterialId WHERE ProductId = ${mysql.escape(ProductId)};`);
                 if (result.length == 0) {
                     res.status(204).json({ succes: false, return: 'Not found' });
                 }
             } else if (MaterialId != null) {
-                result = await query(`SELECT ProductId, MaterialId FROM ProductMaterials WHERE MaterialId = ${mysql.escape(MaterialId)};`);
+                result = await query(`SELECT P.ProductId, P.Name, P.Price, P.Description, P.Rate, P.Stock, P.CreateAt, M.MaterialId, M.Label FROM ProductMaterials PM INNER JOIN Products P ON PM.ProductId = P.ProductId INNER JOIN Materials M ON PM.MaterialId = M.MaterialId WHERE MaterialId = ${mysql.escape(MaterialId)};`);
                 if (result.length == 0) {
                     res.status(204).json({ succes: false, return: 'Not found' });
                 }

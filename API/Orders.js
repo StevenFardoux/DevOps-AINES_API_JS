@@ -32,24 +32,24 @@ module.exports = {
         });
 
         app.post('/Orders', async (req, res, next) => {
-            let checkData = false;
+            let checkData = true;
             let result, AddressId, CardId;
 
             if (req.body.AddressId != null) {
                 AddressId = req.body.AddressId;
             } else {
-                checkData = true;
+                checkData = false;
                 res.status(400).json({ succes: false, return: 'No address id (AddressId) passed as parameter' });
             }
 
             if (req.body.CardId != null) {
                 CardId = req.body.CardId;
             } else {
-                checkData = true;
+                checkData = false;
                 res.status(400).json({ succes: false, return: 'No card id (CardId) passed as parameter' });
             }
 
-            if (checkData == false) {
+            if (checkData) {
                 result = await query(`INSERT INTO Orders VALUES(0, 0, NOW(), ${mysql.escape(AddressId)}, ${mysql.escape(CardId)});`);
                 if (result == 0) {
                     res.status(403).json({ succes: false, return: 'refused method' });

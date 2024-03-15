@@ -30,7 +30,7 @@ module.exports = {
         });
 
         app.post('/Roles', async (req, res, next) => {
-            letlibelle, result, checkData = false;
+            letlibelle, result, checkData = true;
 
             let tabUserInfo = await helper?.getInfoUser(req);
             if (tabUserInfo[0].RoleId == 2) {
@@ -38,10 +38,10 @@ module.exports = {
                     libelle = req.body.Libelle;
                 } else {
                     res.status(400).json({ succes: false, return: 'No libelle (Libelle) passed as parameter' });
-                    checkData = true;
+                    checkData = false;
                 }
 
-                if (checkData == false) {
+                if (checkData) {
                     result = await query(`INSERT INTO Roles VALUES(0, ${mysql.escape(libelle)});`);
                     if (result.length == 0) {
                         res.status(403).json({ succes: false, return: 'refused method' });
@@ -52,7 +52,7 @@ module.exports = {
         });
 
         app.put('/Roles', async (req, res, next) => {
-            let libelle, result, checkData = false;
+            let libelle, result, checkData = true;
             if (req.headers.token != null) {
                 let tabUserInfo = await helper?.getInfoUser(req);
                 if (tabUserInfo[0].RoleId == 2) {
@@ -60,10 +60,10 @@ module.exports = {
                         libelle = req.body.libelle;
                     } else {
                         res.status(400).json({ succes: false, return: 'No libelle (Libelle) passed as parameter' });
-                        checkData = true;
+                        checkData = false;
                     }
 
-                    if (checkData == false) {
+                    if (checkData) {
                         result = await query(`UPDATE Roles SET label = ${mysql.escape(libelle)};`);
                         if (result.length == 0) {
                             res.status(403).json({ succes: false, return: 'refused method' });
@@ -77,7 +77,7 @@ module.exports = {
         });
 
         app.delete('/Roles', async (req, res, next) => {
-            let roleId, checkData = false;
+            let roleId, checkData = true;
             if (req.headers.token != null) {
                 let tabUserInfo = await helper?.getInfoUser(req);
                 if (tabUserInfo[0].RoleId == 2) {
@@ -86,10 +86,10 @@ module.exports = {
                     } else {
                         result = "RoleId manquant";
                         res.status(204).json({ succes: false, return: 'No libelle (Libelle) passed as parameter' });
-                        checkData = true;
+                        checkData = false;
                     }
 
-                    if (checkData == false) {
+                    if (checkData) {
                         result = await query(`DELETE FROM Roles WHERE RolesId = ${mysql.escape(roleId)};`);
                         if (result.length == 0) {
                             res.status(403).json({ succes: false, return: 'refused method' });

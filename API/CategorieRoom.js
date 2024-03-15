@@ -24,7 +24,7 @@ module.exports = {
         });
 
         app.post('/CategorieRoom', async (req, res, next) => {
-            let checkdata = false;
+            let checkdata = true;
             let CategorieId, RoomId, result
 
             if (req.body.CategorieId) {

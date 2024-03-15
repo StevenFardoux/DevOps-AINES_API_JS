@@ -22,11 +22,11 @@ module.exports = {
             }
 
             if (checkData) {
-                result = await query(`SELECT productId, colorId FROM ProductColors WHERE productId = ${mysql.escape(ProductId)} AND colorId =${mysql.escape(ColorId)};`);
+                result = await query(`SELECT P.ProductId, P.Name, P.Price, P.Description, P.Rate, P.Stock, P.CreateAt, C.colorId, C.hex FROM ProductColors PC INNER JOIN Products P ON PC.productId = P.ProductId INNER JOIN Colors C ON PC.colorID = C.colorId WHERE productId = ${mysql.escape(ProductId)} AND colorId =${mysql.escape(ColorId)};`);
             } else if (ProductId != null) {
-                result = await query(`SELECT productId, colorId FROM ProductColors WHERE productId = ${mysql.escape(ProductId)};`);
+                result = await query(`SELECT P.ProductId, P.Name, P.Price, P.Description, P.Rate, P.Stock, P.CreateAt, C.colorId, C.hex FROM ProductColors PC INNER JOIN Products P ON PC.productId = P.ProductId INNER JOIN Colors C ON PC.colorID = C.colorId WHERE productId = ${mysql.escape(ProductId)};`);
             } else if (ColorId != null) {
-                result = await query(`SELECT productId, colorId FROM ProductColors WHERE colorId = ${mysql.escape(ColorId)};`);
+                result = await query(`SELECT P.ProductId, P.Name, P.Price, P.Description, P.Rate, P.Stock, P.CreateAt, C.colorId, C.hex FROM ProductColors PC INNER JOIN Products P ON PC.productId = P.ProductId INNER JOIN Colors C ON PC.colorID = C.colorId WHERE colorId = ${mysql.escape(ColorId)};`);
             } else {
                 res.status(400).json({ succes: false, return: 'No product id (ProductId) or color id (ColorId) passed as parameter' });
             }
