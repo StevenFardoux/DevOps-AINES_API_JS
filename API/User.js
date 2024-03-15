@@ -63,13 +63,10 @@ module.exports = {
                 } else {
                     checkData = true;
                     result = "Adresse mail invalide"
-
-
                 }
             } else {
                 checkData = true;
                 result = "Aucun adresse mail (Mail) passé en paramètre"
-
             }
 
             if (req.body.Password != null) {
