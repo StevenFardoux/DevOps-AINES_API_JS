@@ -9,7 +9,7 @@ module.exports = {
                 //getUsersID
                 result = await query(`SELECT Firstname, Lastname, Mail, Password, RoleId FROM Users WHERE UserId = ${mysql.escape(req.query.UserId)}`);
                 if (result.length == 0) {
-                    result = {'code error': "204", error: "User not found"};
+                    res.status(204).json({ succes: false, return: 'Not found' });
                 }
             }
             else {
@@ -23,41 +23,42 @@ module.exports = {
                         if (tabUserInfo[0].RoleId == 2) {
                             result = await query(`SELECT Firstname, Lastname, Mail, Password, RoleId FROM Users`);
                             if (result.length == 0) {
-                                result = {'code error': "204", error: "Users not found"};
+                                res.status(204).json({ succes: false, return: 'Not found' });
                             }
                         } else {
-                            result = {'code error': "403", error: "Unauthorized action"};
+                            res.status(403).json({ succes: false, return: 'Unauthorized action' });
                         }
                     } else {
-                        result = {'code error': "204", error: "Users not found"};
+                        res.status(204).json({ succes: false, return: 'Users not found' });
                     }
                 } else {
-                    result = {'code error': "403", error: "Token required for this action"};
+                    res.status(403).json({ succes: false, return: 'Token required for this action' });
                 }
             }
             console.log(result)
-            res.json(result)
+            res.status(200).json({ succes: false, return: result });
         });
 
 
         app.post('/Users', async (req, res, next) => {
-            let checkData = false;
+            let checkData = true;
             let result, lastName, mail, pwd, hash;
             let firstName;
+
             if (req.body.Firstname != null) {
                 console.log(req.body.Firstname.toLowerCase());
                 firstName = req.body.Firstname.toLowerCase();
             } else {
-                checkData = true;
-                result = {'code error': "400", error: "No first name (Firstname) passed as parameter"}
+                checkData = false;
+                res.status(400).json({ succes: false, return: 'No first name (Firstname) passed as parameter' });
             }
 
             if (req.body.Lastname != null) {
                 console.log(req.body.Lastname.toLowerCase());
                 lastName = req.body.Lastname.toLowerCase();
             } else {
-                checkData = true;
-                result = {'code error': "400", error: "No name (Lastname) passed as parameter"}
+                checkData = false;
+                res.status(400).json({ succes: false, return: 'No name (Lastname) passed as parameter' });
             }
 
             if (req.body.Mail != null) {
@@ -65,12 +66,12 @@ module.exports = {
                 if (/^\S+@\S+\.\S+$/.test(req.body.Mail)) {
                     mail = req.body.Mail.toLowerCase();
                 } else {
-                    checkData = true;
-                    result = {'code error': "400", error: "Invalid e-mail address"}
+                    checkData = false;
+                    res.status(400).json({ succes: false, return: 'Invalid e-mail address' });
                 }
             } else {
-                checkData = true;
-                result = {'code error': "400", error: "No mail address (Mail) passed as parameter"}
+                checkData = false;
+                res.status(400).json({ succes: false, return: 'No mail address (Mail) passed as parameter' });
             }
 
             if (req.body.Password != null) {
@@ -80,37 +81,37 @@ module.exports = {
                     const salt = bcrypt.genSaltSync(10);
                     hash = bcrypt.hashSync(pwd, salt);
                 } else {
-                    checkData = true;
-                    result = {'code error': "400", error: "The password must contain at least 8 characters, a number, a capital letter and a special character."}
+                    checkData = false;
+                    res.status(400).json({ succes: false, return: 'The password must contain at least 8 characters, a number, a capital letter and a special character.' });
                 }
             } else {
-                checkData = true;
-                result = {'code error': "400", error: "No password passed as parameter"}
+                checkData = false;
+                res.status(400).json({ succes: false, return: 'No password passed as parameter' });
             }
 
             if (req.body.RoleId != null) {
                 console.log(req.body.RoleId.toLowerCase());
                 roleId = req.body.RoleId.toLowerCase();
             } else {
-                checkData = true;
-                result = {'code error': "400", error: "No RoleId passed as parameter"};
+                checkData = false;
+                res.status(400).json({ succes: false, return: 'No role id (RoleId) passed as parameter' });
             }
 
-            if (checkData == false) {
+            if (checkData) {
                 //toute les données ont été envoyer alors ont peux créer le user.
                 let result = await query(`INSERT INTO Users VALUES(0, ${mysql.escape(firstName)}, ${mysql.escape(lastName)}, ${mysql.escape(mail)}, ${mysql.escape(hash)}, 1);`);
                 if (result == 0) {
-                    result = {'code error': "403", error: "refused method"};
+                    res.status(403).json({ succes: false, return: 'refused method' });
                 }
             }
             console.log(result)
-            res.json(result);
+            res.status(200).json({ succes: false, return: result });
 
         });
 
 
         app.put('/Users', async (req, res, next) => {
-            let mail, pwd, checkData = false, result, idUser;
+            let mail, pwd, checkData = true, result, idUser;
             console.log(req.body);
             if (req.headers.token != null) {
                 let tabUserInfo = helper.getInfoUser(req);
@@ -124,23 +125,23 @@ module.exports = {
                         if (req.body.id != null) {
                             idUser = mysql.escape(req.body.id)
                         } else {
-                            result = {'code error': "400", error: "Missing Id"};
+                            res.status(400).json({ succes: false, return: 'No user id (userID) passed as parameter' });
                         }
                     }
                 } else {
-                    result = {'code error': "204", error: "Users not found"};
+                    res.status(204).json({ succes: false, return: 'Users not found' });
                 }
 
             } else {
-                result = {'code error': "403", error: "Token required for this action"};
+                res.status(403).json({ succes: false, return: 'Token required for this action' });
             }
             if (req.body.Mail != null) {
                 //Vérification que c'est bien un mail avec retour false si ce ne l'est pas + message.4
                 if (/^\S+@\S+\.\S+$/.test(req.body.Mail)) {
                     mail = req.body.Mail.toLowerCase();
                 } else {
-                    checkData = true;
-                    result = {'code error': "400", error: "Invalid e-mail address"};
+                    checkData = false;
+                    res.status(400).json({ succes: false, return: 'Invalid e-mail address' });
                 }
             }
 
@@ -150,12 +151,12 @@ module.exports = {
                 if (pwd.length >= 8 && /[0-9]/.test(pwd) && /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /[!@#$%^&*]/.test(pwd)) {
                     // Le mot de passe est valide
                 } else {
-                    checkData = true;
-                    result = {'code error': "400", error: "The password must contain at least 8 characters, a number, a capital letter and a special character."};
+                    checkData = false;
+                    res.status(400).json({ succes: false, return: 'The password must contain at least 8 characters, a number, a capital letter and a special character.' });
                 }
             }
             console.log(checkData)
-            if (checkData == false) {
+            if (checkData) {
                 let quer = `UPDATE Users SET `
                 for (const key in req.body) {
                     if (Object.hasOwnProperty.call(req.body, key)) {
@@ -170,11 +171,11 @@ module.exports = {
                 console.log(quer);
                 result = await query(quer)
                 if (result.length == 0) {
-                    result = {'code error': "403", error: "refused method"};
+                    res.status(403).json({ succes: false, return: 'refused method' });
                 }
             }
             console.log(result)
-            res.json(result);
+            res.status(200).json({ succes: false, return: result });
         });
 
 
@@ -192,27 +193,27 @@ module.exports = {
                         if (req.body.id != null) {
                             idUser = mysql.escape(req.body.id)
                         } else {
-                            result = {'code error': "204", error: "Users not found"};
+                            res.status(204).json({ succes: false, return: 'No user id (userID) passed as parameter' });
                         }
                     }
                 } else {
-                    result = {'code error': "204", error: "Users not found"};
+                    res.status(204).json({ succes: false, return: 'Users not found' });
                 }
 
             } else {
-                result = {'code error': "403", error: "Token required for this action"};
+                res.status(403).json({ succes: false, return: 'Token required for this action' });
             }
 
             if (idUser != null) {
                 result = await query(`DELETE FROM Users WHERE UserId = ${mysql.escape(idUser)};`);
                 if (result.length == 0) {
-                    result = {'code error': "403", error: "refused method"};
+                    res.status(403).json({ succes: false, return: 'refused method' });
                 }
             } else {
-                result = {'code error': "204", error: "No Id passed as parameter"};
+                res.status(204).json({ succes: false, return: 'No user id (userId) passed as parameter' });
             }
             console.log(result)
-            res.json(result);
+            res.status(200).json({ succes: false, return: result });
         });
     }
 }

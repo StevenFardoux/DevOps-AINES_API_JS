@@ -2,7 +2,7 @@ const mysql = require("mysql");
 const helper = require("../helper");
 
 module.exports = {
-    initFunction : (app, query) => {
+    initFunction: (app, query) => {
         app.get('/Products', async (req, res, next) => {
             let trie = "", querr, result;
 
@@ -27,7 +27,7 @@ module.exports = {
             }
 
             if (req.query.Stock) {
-                
+
                 if (trie != null) {
                     trie = ` WHERE P.Stock > 0 `
                 } else {
@@ -51,25 +51,25 @@ module.exports = {
                 }
             }
             if (req.query.ProductId) {
-                result = await query(`SELECT Name, Price, Description, Stock, CreateAt FROM Products WHERE ProductId = ${mysql.escape(req.query.ProductId)}`);
+                result = await query(`SELECT Name, Price, Description, Rate, Stock, CreateAt FROM Products WHERE ProductId = ${mysql.escape(req.query.ProductId)}`);
             } else {
-                querr = `SELECT P.Name, Price, P.Description, Stock, CreateAt FROM Products P INNER JOIN Categoriser CT ON P.ProductId = CT.ProductId LEFT OUTER JOIN Categories C ON CT.CategoryId = C.CategoryId LEFT OUTER JOIN CategoriesRoom CR ON CR.CategoryId = C.CategoryId LEFT OUTER JOIN Rooms R ON CR.RoomId = R.RoomId `;
+                querr = `SELECT P.Name, Price, P.Description, Rate, Stock, CreateAt FROM Products P INNER JOIN Categoriser CT ON P.ProductId = CT.ProductId LEFT OUTER JOIN Categories C ON CT.CategoryId = C.CategoryId LEFT OUTER JOIN CategoriesRoom CR ON CR.CategoryId = C.CategoryId LEFT OUTER JOIN Rooms R ON CR.RoomId = R.RoomId `;
                 if (trie != "") {
                     result = await query(querr + trie);
                 } else {
                     result = await query(querr);
                 }
                 if (result.length == 0) {
-                    result = {'code error': "403", error: "refused method"};
+                    res.status(403).json({ succes: false, return: 'refused method' });
                 }
             }
             console.log(result)
-            res.json(result);
+            res.status(200).json({ succes: false, return: result });
 
         });
 
         app.post('/Products', async (req, res, next) => {
-            let checkData = false, result, tabUserInfo, name, price, description, stock, createAt;
+            let checkData = true, result, tabUserInfo, name, price, description, rate, stock, createAt;
             if (req.headers.token != null) {
                 tabUserInfo = helper.getInfoUser(req);
                 if (tabUserInfo[0].UserID != 0) {
@@ -78,59 +78,63 @@ module.exports = {
                             console.log(req.body.Name.toLowerCase());
                             name = req.body.Name.toLowerCase();
                         } else {
-                            checkData = true;
-                            result = {'code error': "400", error: "No first name (Mame) passed as parameter"}
+                            checkData = false;
+                            res.status(400).json({ succes: false, return: 'No first name (Mame) passed as parameter' });
                         }
 
                         if (req.body.Price != null) {
                             console.log(req.body.Price.toLowerCase());
                             price = req.body.Price.toLowerCase();
                         } else {
-                            checkData = true;
-                            result = {'code error': "400", error: "No price (Price) passed as parameter"}
+                            checkData = false;
+                            res.status(400).json({ succes: false, return: 'No price (Price) passed as parameter' });
                         }
 
                         if (req.body.Description != null) {
                             console.log(req.body.Description.toLowerCase());
                             description = req.body.Description.toLowerCase();
                         } else {
-                            checkData = true;
-                            result = {'code error': "400", error: "No first description (Description) passed as parameter"}
+                            checkData = false;
+                            res.status(400).json({ succes: false, return: 'No first description (Description) passed as parameter' });
+                        }
+
+                        if (req.body.Rate != null) {
+                            rate = req.body.rate;
                         }
 
                         if (req.body.Stock != null) {
                             console.log(req.body.Stock.toLowerCase());
                             stock = req.body.Stock.toLowerCase();
                         } else {
-                            checkData = true;
-                            result = {'code error': "400", error: "No stock (Stock) passed as parameter"}
+                            checkData = false;
+                            res.status(400).json({ succes: false, return: 'No stock (Stock) passed as parameter' });
                         }
 
                         if (req.body.CreateAt != null) {
                             console.log(req.body.CreateAt);
                             createAt = req.body.CreateAt;
                         } else {
-                            checkData = true;
-                            result = {'code error': "400", error: "No Date added (CreateAt) passed as parameter"}
+                            checkData = false;
+                            res.status(400).json({ succes: false, return: 'No Date added (CreateAt) passed as parameter' });
                         }
 
-                        if (checkData == false) {
-                            result = await query(`INSERT INTO Products VALUES(0 ,${mysql.escape(name)}, ${mysql.escape(price)}, ${mysql.escape(description)}, ${mysql.escape(stock)}, ${mysql.escape(createAt)});`);
+                        if (checkData) {
+                            result = await query(`INSERT INTO Products VALUES(0 ,${mysql.escape(name)}, ${mysql.escape(price)}, ${mysql.escape(description)}, ${(rate != null ? rate : 0)} , ${mysql.escape(stock)}, ${mysql.escape(createAt)});`);
                             if (result.length == 0) {
-                                result = {'code error': "403", error: "refused method"};
+                                res.status(403).json({ succes: false, return: 'refused method' });
                             }
                         }
                     } else {
-                        result = {'code error': "403", error: "refused method"};
+                        res.status(403).json({ succes: false, return: 'refused method' });
                     }
                 } else {
-                    result = {'code error': "204", error: "Users not found"};
+                    res.status(204).json({ succes: false, return: 'Users not found' });
                 }
             } else {
-                result = {'code error': "403", error: "Token required for this action"};
+                res.status(403).json({ succes: false, return: 'Token required for this action' });
             }
             console.log(result)
-            res.json(result)
+            res.status(200).json({ succes: false, return: result });
         });
 
         app.put('/products', async (req, res, next) => {
@@ -148,10 +152,10 @@ module.exports = {
             console.log(quer);
             let result = await query(quer);
             if (result.length == 0) {
-                result = {'code error': "403", error: "refused method"};
+                res.status(403).json({ succes: false, return: 'refused method' });
             }
             console.log(result);
-            res.json(result);
+            res.status(200).json({ succes: false, return: result });
         });
 
         app.delete('/Products', async (req, res, next) => {
@@ -159,13 +163,13 @@ module.exports = {
             if (req.body.ProductId != null) {
                 result = await query(`DELETE FROM Products WHERE ProductId = ${mysql.escape(req.body.ProductId)};`);
                 if (result.length == 0) {
-                    result = {'code error': "403", error: "refused method"};
+                    res.status(403).json({ succes: false, return: 'refused method' });
                 }
             } else {
-                result = {'code error': "400", error: "No id (ProductId) passed as parameter"}
+                res.status(400).json({ succes: false, return: 'No id (ProductId) passed as parameter' });
             }
             console.log(result);
-            res.json(result);
+            res.status(200).json({ succes: false, return: result });
         });
     }
 }
